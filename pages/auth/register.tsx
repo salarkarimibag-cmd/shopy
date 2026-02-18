@@ -1,18 +1,10 @@
-import { Field, Form, Formik } from "formik";
+
 import type { NextPage } from "next";
 
-interface RegisterFormValues {
-  name: string;
-  email: string;
-  password: string;
-}
+
 
 const Register: NextPage = () => {
-  const initialValues: RegisterFormValues = {
-    name: "",
-    email: "",
-    password: "",
-  };
+ 
 
   return (
     <>
