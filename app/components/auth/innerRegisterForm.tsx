@@ -1,6 +1,6 @@
-import { RegisterFormValuesInterface } from "@/pages/auth";
 import { Form, FormikProps } from "formik";
 import Input from "../shared/form/input";
+import { RegisterFormValuesInterface } from "@/app/contracts/auth";
 
 const InnerRegisterForm = (props: FormikProps<RegisterFormValuesInterface>) => {
   const { isSubmitting } = props;

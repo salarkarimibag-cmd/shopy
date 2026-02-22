@@ -1,5 +1,5 @@
 import InnerLoginForm from "@/app/components/auth/innerLoginForm";
-import { LoginFormValuesInterface } from "@/pages/auth";
+import { LoginFormValuesInterface } from "@/app/contracts/auth";
 import { withFormik } from "formik";
 import * as Yup from "yup";
 
