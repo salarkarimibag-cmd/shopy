@@ -1,35 +1,59 @@
-import InnerLoginForm from "@/app/components/auth/innerLoginForm";
-import { LoginFormValuesInterface } from "@/app/contracts/auth";
 import { withFormik } from "formik";
-import * as Yup from "yup";
+import Router from "next/router";
+import * as yup from "yup";
+import InnerLoginForm from "../../components/auth/innerLoginForm";
+import { LoginFormValuesInterface } from "../../contracts/auth";
+import callApi from "../../helpers/callApi";
 
-const LoginForm = withFormik<{}, LoginFormValuesInterface>({
+const loginFormValidationSchema = yup.object().shape({
+  email: yup
+    .string()
+    .trim()
+    .required("ایمیل الزامی است")
+    .email("فرمت ایمیل صحیح نیست"),
+
+  password: yup
+    .string()
+    .required("رمز عبور الزامی است")
+    .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد"),
+});
+
+interface LoginFormProps {
+  setCookie: any;
+}
+
+const LoginForm = withFormik<LoginFormProps, LoginFormValuesInterface>({
   mapPropsToValues: () => ({
     email: "",
     password: "",
   }),
 
-  validationSchema: Yup.object({
-    email: Yup.string().email("ایمیل معتبر نیست").required("ایمیل الزامی است"),
-    password: Yup.string()
-      .min(6, "حداقل ۶ کاراکتر")
-      .required("رمز عبور الزامی است"),
-  }),
+  validationSchema: loginFormValidationSchema,
 
-  handleSubmit: async (values, { setSubmitting, setErrors }) => {
+  handleSubmit: async (
+    values,
+    { props, setSubmitting, setErrors, setStatus },
+  ) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const { data, status } = await callApi().post("/auth/login", values);
 
-      if (
-        values.email !== "salarkarimi.bag@gmail.com" ||
-        values.password !== "123456"
-      ) {
-        setErrors({
-          email: "ایمیل یا رمز اشتباه است",
+      if (status === 200) {
+        props.setCookie("shopy-token", data.token, {
+          maxAge: 60 * 60 * 24 * 30,
+          path: "/",
+          sameSite: "lax",
         });
-        return;
+
+        Router.push("/");
       }
-      console.log("Login successful ✅");
+    } catch (error: any) {
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+      } else if (error.response?.data?.message) {
+        setStatus(error.response.data.message);
+      } else {
+        setStatus("ایمیل یا رمز عبور اشتباه است");
+      }
     } finally {
       setSubmitting(false);
     }
